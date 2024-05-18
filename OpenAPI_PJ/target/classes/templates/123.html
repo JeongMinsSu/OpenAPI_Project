@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    .logo{
+      width: 10vw;
+      height: 13vh;
+      position: relative;
+      right: 2vw;
+      top: 5vh;
+    }
+    .search {
+      border: 0.1vw solid lightgray;
+      border-radius: 10vw;
+      width: 30vw;
+      height: 5vh;
+      box-shadow: 0 0.6944vw 1.3889vw rgba(0,0,0,0.10), 0 0.4167vw 0.4167vw rgba(0,0,0,0.10);
+      font-size: 1.2vw;
+      padding-left: 1vw;
+    }
+    .btnSr{
+      border-radius: 10vw;
+      border: none;
+      background-color: gray;
+      color: white;
+      width: 5vw;
+      height: 5.6vh;
+      box-shadow: 0 0.6944vw 1.3889vw rgba(0,0,0,0.10), 0 0.4167vw 0.4167vw rgba(0,0,0,0.10);
+      margin-left: 1vw;
+      font-size: 0.8vw;
+    }
+    .btnSr:active{
+      transform: scale(0.9, 0.9);
+    }
+    .map{
+      width: 80vw;
+      height: 60vh;
+      border: 0.1vw solid;
+      margin-top: 10vh;
+    }
+    #ParkingInfo{
+      width: 80vw;
+      height: 80vh;
+      margin-top: 5vh;
+    }
+  </style>
+</head>
+<body>
+  <center>
+    <div>
+      <form onsubmit="searchPlaces(); return false;">
+        <a href="123.html"><img src="./logo.jpg" class="logo"></a>
+        <input type="text" class="search" value="" id="keyword">
+        <button type="submit" class="btnSr">검색</button>
+      </form>
+    </div>
+    <div class="map" id="map"></div>
+    <div id="ParkingInfo"></div>
+    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=3a54f93232184b8c18746a796251b9f9&libraries=services"></script>
+    <script>
+      // 마커를 클릭하면 장소명을 표출할 인포윈도우 입니다
+      var infowindow = new kakao.maps.InfoWindow({zIndex:1});
+      
+      var mapContainer = document.getElementById('map'), // 지도를 표시할 div 
+      
+          mapOption = {
+              center: new kakao.maps.LatLng(37.566826, 126.9786567), // 지도의 중심좌표
+              level: 3 // 지도의 확대 레벨
+          };  
+      
+      // 지도를 생성합니다    
+      var map = new kakao.maps.Map(mapContainer, mapOption); 
+      
+      // 장소 검색 객체를 생성합니다
+      var ps = new kakao.maps.services.Places(); 
+      
+      // 키워드로 장소를 검색합니다
+      searchPlaces();
+
+      // 키워드 검색을 요청하는 함수입니다
+      function searchPlaces() {
+
+          var keyword = document.getElementById('keyword').value;
+
+          if (!keyword.replace(/^\s+|\s+$/g, '')) {
+              return false;
+          }
+
+
+          // 장소검색 객체를 통해 키워드로 장소검색을 요청합니다
+          ps.keywordSearch( keyword, placesSearchCB); 
+      }
+      
+      // 키워드 검색 완료 시 호출되는 콜백함수 입니다
+      function placesSearchCB (data, status, pagination) {
+          if (status === kakao.maps.services.Status.OK) {
+      
+              // 검색된 장소 위치를 기준으로 지도 범위를 재설정하기위해
+              // LatLngBounds 객체에 좌표를 추가합니다
+              var bounds = new kakao.maps.LatLngBounds();
+      
+              for (var i=0; i<data.length; i++) {
+                  displayMarker(data[i]);    
+                  bounds.extend(new kakao.maps.LatLng(data[i].y, data[i].x));
+              }       
+      
+              // 검색된 장소 위치를 기준으로 지도 범위를 재설정합니다
+              map.setBounds(bounds);
+          } 
+      }
+
+      function modifyDivContent() {
+        // div 요소의 아이디를 사용하여 요소를 가져옵니다.
+        var divElement = document.getElementById('ParkingInfo');
+        
+        // 가져온 div 요소의 내용을 수정합니다.
+        divElement.innerHTML = 
+        '<div style="width: 50vw; height: 45vh;"><h2 style="font-size: 3vw;">강남 공영주차장</h2><p style="margin-right: 20vw; font-weight: bold; font-size: 1vw;">상세 정보</p><span style="font-size: 1.5vw;">⚲ </span><span style="font-size: 1vw; width: auto; padding-right: 11vw;">서울특별시 강남구 311-1</span><br><span style="font-size: 1.3vw; padding-left: 9.5vw;">✱ </span><span style="font-size: 1vw; width: auto;">운영 시간</span><span style="font-size: 1.3vw; padding-left: 7.8vw;">💰 </span><span style="font-size: 1vw; width: auto; padding-right: 15.1vw;">금액</span><ul style="list-style: none; font-size: 0.8vw; color: gray; padding-right: 20vw;"><li>월 10시 ~ 24시</li><li>월 10시 ~ 24시</li><li>월 10시 ~ 24시</li><li>월 10시 ~ 24시</li><li>월 10시 ~ 24시</li><li>월 10시 ~ 24시</li><li>월 10시 ~ 24시</li></ul><ul style="list-style: none; font-size: 0.8vw; color: gray; padding-right: 20vw; position: relative; bottom: 8.3vw; left: 13.6vw;"><li>기본 1시간 5,000원</li><li>추가 1시간 5,000원</li><li>일일 24시간 40,000원</li></ul></div><hr style="border-top: 0.05vw solid lightgray; width: 40vw;"><div style="padding-top: 1vw;"><span style="font-size: 1vw; font-weight: bold; margin-right: 19vw;">실시간 정보</span><br><span style="font-size: 0.7vw; color: gray; margin-right: 13vw;">업데이트 시간: 2024.05.11 17:15:12</span><br><br><span style="font-size: 1vw; margin-right: 3vw;">총 주자구획 수: <span style="font-size: 1.3vw; color: black;">100</span></span><span style="font-size: 1vw;">주차 가능한 구획 수: <span style="font-size: 1.3vw; color: blue;">20</span></span></div>';
+      }
+
+      // 지도에 마커를 표시하는 함수입니다
+      function displayMarker(place) {
+          
+          // 마커를 생성하고 지도에 표시합니다
+          var marker = new kakao.maps.Marker({
+              map: map,
+              position: new kakao.maps.LatLng(place.y, place.x) 
+          });
+      
+          // 마커에 클릭이벤트를 등록합니다
+          kakao.maps.event.addListener(marker, 'click', function() {
+              // 마커를 클릭하면 장소명이 인포윈도우에 표출됩니다
+              infowindow.setContent('<div style="padding:5px;font-size:12px;">' + place.place_name + '</div>');
+              infowindow.open(map, marker);
+              console.log(123);
+              modifyDivContent();
+          });
+      }
+      </script>
+  </center>
+</body>
+</html>
